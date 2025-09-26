@@ -192,7 +192,7 @@ export class TradingController {
 
       // Ejecutar orden de compra
       const transaction = await tradingService.executeOrder(
-        "sell",
+        "buy",
         user.id,
         symbol.toUpperCase(),
         quantity
@@ -250,7 +250,7 @@ export class TradingController {
 
       // Ejecutar orden de venta
       const transaction = await tradingService.executeOrder(
-        "buy",
+        "sell",
         user.id,
         symbol.toUpperCase(),
         quantity
