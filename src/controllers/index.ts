@@ -5,6 +5,7 @@ import { MarketAnalysisService } from "../services/MarketAnalysisService";
 import { MarketSimulationService } from "../services/MarketSimulationService";
 import { storage } from "../utils/storage";
 
+
 // Instancias de servicios - Candidato para Dependency Injection
 const tradingService = new TradingService();
 const analysisService = new MarketAnalysisService();
@@ -190,7 +191,8 @@ export class TradingController {
       }
 
       // Ejecutar orden de compra
-      const transaction = await tradingService.executeBuyOrder(
+      const transaction = await tradingService.executeOrder(
+        "sell",
         user.id,
         symbol.toUpperCase(),
         quantity
@@ -247,7 +249,8 @@ export class TradingController {
       }
 
       // Ejecutar orden de venta
-      const transaction = await tradingService.executeSellOrder(
+      const transaction = await tradingService.executeOrder(
+        "buy",
         user.id,
         symbol.toUpperCase(),
         quantity
