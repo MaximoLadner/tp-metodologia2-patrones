@@ -21,7 +21,7 @@ class InMemoryStorage {
   constructor() {
     this.initializeDefaultData();
   }
-
+  
   // Inicializar datos por defecto
   private initializeDefaultData() {
     // Usuarios por defecto

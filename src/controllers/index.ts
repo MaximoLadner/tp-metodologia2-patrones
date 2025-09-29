@@ -9,7 +9,7 @@ import { storage } from "../utils/storage";
 // Instancias de servicios - Candidato para Dependency Injection
 const tradingService = new TradingService();
 const analysisService = new MarketAnalysisService();
-const marketSimulation = new MarketSimulationService();
+const marketSimulation = MarketSimulationService.getInstance();
 
 // Controlador de autenticación
 export class AuthController {
