@@ -1,15 +1,25 @@
-import { RiskStrategy } from "./strategiesMarketAnalysisService/RiskStrategy";
-import {ModerateRiskStrategy} from "./strategiesMarketAnalysisService/ModerateRiskStrategy";
+import { RiskStrategy } from "./strategiesRiskyMarketAnalysisService/RiskStrategy";
+import { ModerateRiskStrategy } from "./strategiesRiskyMarketAnalysisService/ModerateRiskStrategy";
 import { Portfolio, RiskAnalysis } from "../models/types";
 import { storage } from "../utils/storage";
-// (también podrías importar ConservativeRiskStrategy o AggressiveRiskStrategy según usuario)
+import { RecommendationStrategy } from "./strategiesRecommendationMarketAnalysis.ts/RecommendationStrategy";
+import { DiversificationStrategy } from "./strategiesRecommendationMarketAnalysis.ts/DiversificationRecommendationStrategy";
+import { VolatilityStrategy } from "./strategiesRecommendationMarketAnalysis.ts/VolatilyRecommendationStrategy";
+import { RiskLevelStrategy } from "./strategiesRecommendationMarketAnalysis.ts/RiskLevelRecommendationStrategy";
 
 export class MarketAnalysisService {
   private riskStrategy: RiskStrategy;
+  private strategiesRecommendation: RecommendationStrategy[];
 
   constructor(riskStrategy?: RiskStrategy) {
     // Estrategia por defecto si no se pasa ninguna
     this.riskStrategy = riskStrategy || new ModerateRiskStrategy();
+
+    this.strategiesRecommendation = [
+      new DiversificationStrategy(),
+      new VolatilityStrategy(),
+      new RiskLevelStrategy(),
+    ];
   }
 
   analyzePortfolioRisk(userId: string): RiskAnalysis {
@@ -79,7 +89,7 @@ export class MarketAnalysisService {
     return Math.min(sectorScore + distributionScore, 100);
   }
 
-  // Calcular score de volatilidad 
+  // Calcular score de volatilidad
   private calculateVolatilityScore(portfolio: Portfolio): number {
     if (portfolio.holdings.length === 0) return 0;
 
@@ -99,7 +109,7 @@ export class MarketAnalysisService {
   private getAssetVolatility(symbol: string): number {
     // Simulación básica de volatilidad por sector
     const asset = storage.getAssetBySymbol(symbol);
-    if (!asset) return 50; // Volatilidad por defecto
+    if (!asset) return 50;
 
     const volatilityBySector: { [key: string]: number } = {
       Technology: 65,
@@ -118,36 +128,15 @@ export class MarketAnalysisService {
     volatilityScore: number,
     riskLevel: string
   ): string[] {
-    const recommendations: string[] = [];
+    let recommendations: string[] = [];
 
-    if (diversificationScore < 40) {
-      recommendations.push(
-        "Considera diversificar tu portafolio invirtiendo en diferentes sectores"
-      );
-    }
-
-    if (volatilityScore > 70) {
-      recommendations.push(
-        "Tu portafolio tiene alta volatilidad, considera añadir activos más estables"
-      );
-    }
-
-    if (riskLevel === "high") {
-      recommendations.push(
-        "Nivel de riesgo alto detectado, revisa tu estrategia de inversión"
-      );
-    }
-
-    if (diversificationScore > 80 && volatilityScore < 30) {
-      recommendations.push(
-        "Excelente diversificación y bajo riesgo, mantén esta estrategia"
-      );
-    }
-
-    // Recomendaciones genéricas si no hay específicas
-    if (recommendations.length === 0) {
-      recommendations.push(
-        "Tu portafolio se ve balanceado, continúa monitoreando regularmente"
+    for (const strategy of this.strategiesRecommendation) {
+      recommendations = recommendations.concat(
+        strategy.generateRecommendations(
+          diversificationScore,
+          volatilityScore,
+          riskLevel
+        )
       );
     }
 
