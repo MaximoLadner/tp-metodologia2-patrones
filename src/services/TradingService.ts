@@ -1,7 +1,7 @@
 import { Transaction } from "../models/types";
-import { BuyOrderStrategy } from "./strategies/BuyOrderStrategy";
-import { SellOrderStrategy } from "./strategies/SellOrderStrategy";
-import { OrderStrategy } from "./strategies/OrderStrategy";
+import { BuyOrderStrategy } from "./strategiesTradingService/BuyOrderStrategy";
+import { SellOrderStrategy } from "./strategiesTradingService/SellOrderStrategy";
+import { OrderStrategy } from "./strategiesTradingService/OrderStrategy";
 import { storage } from "../utils/storage";
 
 export class TradingService {

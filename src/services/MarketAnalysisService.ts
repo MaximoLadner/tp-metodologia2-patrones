@@ -1,32 +1,33 @@
-// Servicio de análisis de mercado
-import { MarketData, Asset, Portfolio, RiskAnalysis } from "../models/types";
+import { RiskStrategy } from "./strategiesMarketAnalysisService/RiskStrategy";
+import {ModerateRiskStrategy} from "./strategiesMarketAnalysisService/ModerateRiskStrategy";
+import { Portfolio, RiskAnalysis } from "../models/types";
 import { storage } from "../utils/storage";
+// (también podrías importar ConservativeRiskStrategy o AggressiveRiskStrategy según usuario)
 
 export class MarketAnalysisService {
-  // Análisis de riesgo del portafolio
+  private riskStrategy: RiskStrategy;
+
+  constructor(riskStrategy?: RiskStrategy) {
+    // Estrategia por defecto si no se pasa ninguna
+    this.riskStrategy = riskStrategy || new ModerateRiskStrategy();
+  }
+
   analyzePortfolioRisk(userId: string): RiskAnalysis {
     const portfolio = storage.getPortfolioByUserId(userId);
     if (!portfolio) {
       throw new Error("Portafolio no encontrado");
     }
 
-    // Cálculo básico de diversificación
     const diversificationScore = this.calculateDiversificationScore(portfolio);
-
-    // Cálculo básico de volatilidad
     const volatilityScore = this.calculateVolatilityScore(portfolio);
 
-    // Determinar nivel de riesgo general
-    let portfolioRisk: "low" | "medium" | "high";
-    if (volatilityScore < 30 && diversificationScore > 70) {
-      portfolioRisk = "low";
-    } else if (volatilityScore < 60 && diversificationScore > 40) {
-      portfolioRisk = "medium";
-    } else {
-      portfolioRisk = "high";
-    }
+    // Ahora delegamos en la estrategia
+    const portfolioRisk = this.riskStrategy.calculateRisk(
+      diversificationScore,
+      volatilityScore,
+      portfolio
+    );
 
-    // Generar recomendaciones básicas
     const recommendations = this.generateRiskRecommendations(
       diversificationScore,
       volatilityScore,
@@ -78,7 +79,7 @@ export class MarketAnalysisService {
     return Math.min(sectorScore + distributionScore, 100);
   }
 
-  // Calcular score de volatilidad - Algoritmo básico
+  // Calcular score de volatilidad 
   private calculateVolatilityScore(portfolio: Portfolio): number {
     if (portfolio.holdings.length === 0) return 0;
 
