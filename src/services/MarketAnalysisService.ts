@@ -31,7 +31,6 @@ export class MarketAnalysisService {
     const diversificationScore = this.calculateDiversificationScore(portfolio);
     const volatilityScore = this.calculateVolatilityScore(portfolio);
 
-    // Ahora delegamos en la estrategia
     const portfolioRisk = this.riskStrategy.calculateRisk(
       diversificationScore,
       volatilityScore,
